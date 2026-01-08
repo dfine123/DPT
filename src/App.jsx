@@ -103,7 +103,7 @@ function App() {
       <div className="scanlines" />
 
       {/* Audio element */}
-      <audio ref={audioRef} src="/bg-music.mp3" muted={isMuted} />
+      <audio ref={audioRef} src="/Zillionaire Doe - Set In Stone (Official Video).mp3" muted={isMuted} />
 
       {/* Main content */}
       <div className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center">
