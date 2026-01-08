@@ -92,6 +92,42 @@ body {
   box-shadow: 0 0 15px var(--money-green-glow), 0 0 30px var(--money-green-glow), inset 0 0 15px rgba(0, 255, 65, 0.1);
 }
 
+/* Pulsate animation for muted audio button */
+@keyframes pulsate {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.7);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px 10px rgba(0, 255, 65, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(0, 255, 65, 0);
+  }
+}
+
+.pulsate {
+  animation: pulsate 1.5s ease-in-out infinite;
+}
+
+/* Arrow bounce animation */
+@keyframes bounce-left {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateX(-8px);
+    opacity: 1;
+  }
+}
+
+.arrow-bounce {
+  animation: bounce-left 1s ease-in-out infinite;
+}
+
 /* Fade transition for quotes */
 .fade-enter {
   opacity: 0;
