@@ -103,7 +103,7 @@ function App() {
       <div className="scanlines" />
 
       {/* Audio element */}
-      <audio ref={audioRef} src="https://files.catbox.moe/k5zlmq.mp3" muted={isMuted} />
+      <audio ref={audioRef} src="/bg-music.mp3" muted={isMuted} />
 
       {/* Main content */}
       <div className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center">
