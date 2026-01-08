@@ -46,14 +46,37 @@ const quotes = [
   { text: "I just took a bar got a bad bitch in my double R, staring at the ceiling I said girl u with a star", artist: "DFine" }
 ]
 
+// Color themes: green (default), red, purple, blue
+const colorThemes = [
+  { main: '#00FF41', dim: '#00cc34', glow: 'rgba(0, 255, 65, 0.4)', hoverBg: 'rgba(0, 255, 65, 0.1)' },
+  { main: '#FF4141', dim: '#cc3434', glow: 'rgba(255, 65, 65, 0.4)', hoverBg: 'rgba(255, 65, 65, 0.1)' },
+  { main: '#A855F7', dim: '#9333ea', glow: 'rgba(168, 85, 247, 0.4)', hoverBg: 'rgba(168, 85, 247, 0.1)' },
+  { main: '#3B82F6', dim: '#2563eb', glow: 'rgba(59, 130, 246, 0.4)', hoverBg: 'rgba(59, 130, 246, 0.1)' },
+]
+
+// Animation styles
+const animations = [
+  'fade-up',
+  'fade-down',
+  'scale',
+  'slide-left',
+  'slide-right',
+  'blur',
+  'rotate',
+  'glitch'
+]
+
 function App() {
   const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * quotes.length))
   const [isVisible, setIsVisible] = useState(true)
   const [isMuted, setIsMuted] = useState(true)
   const [hasInteracted, setHasInteracted] = useState(false)
+  const [colorIndex, setColorIndex] = useState(0) // Start with green
+  const [animStyle, setAnimStyle] = useState('fade-up')
   const audioRef = useRef(null)
 
   const currentQuote = quotes[currentIndex]
+  const currentColor = colorThemes[colorIndex]
 
   const getRandomIndex = useCallback((excludeIndex) => {
     let newIndex
@@ -61,6 +84,14 @@ function App() {
       newIndex = Math.floor(Math.random() * quotes.length)
     } while (newIndex === excludeIndex)
     return newIndex
+  }, [])
+
+  const getRandomAnimation = useCallback((excludeAnim) => {
+    let newAnim
+    do {
+      newAnim = animations[Math.floor(Math.random() * animations.length)]
+    } while (newAnim === excludeAnim)
+    return newAnim
   }, [])
 
   const handleRunItBack = useCallback(() => {
@@ -75,9 +106,11 @@ function App() {
     setIsVisible(false)
     setTimeout(() => {
       setCurrentIndex(prev => getRandomIndex(prev))
+      setColorIndex(prev => (prev + 1) % colorThemes.length)
+      setAnimStyle(prev => getRandomAnimation(prev))
       setIsVisible(true)
     }, 300)
-  }, [getRandomIndex, hasInteracted])
+  }, [getRandomIndex, getRandomAnimation, hasInteracted])
 
   const toggleMute = useCallback(() => {
     if (audioRef.current) {
@@ -96,10 +129,15 @@ function App() {
     }
   }, [])
 
+  // Dynamic glow style for text
+  const textGlowStyle = {
+    color: currentColor.main,
+    textShadow: `0 0 10px ${currentColor.glow}, 0 0 20px ${currentColor.glow}, 0 0 30px ${currentColor.glow}`
+  }
+
   return (
     <div className="noise-bg crt-flicker min-h-screen flex flex-col items-center justify-center px-4 py-8 relative">
       {/* Background effects */}
-      <div className="money-pattern" />
       <div className="scanlines" />
 
       {/* Audio element */}
@@ -108,17 +146,15 @@ function App() {
       {/* Main content */}
       <div className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center">
         {/* Title */}
-        <h1 className="cursor-blink text-glow text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider mb-12 md:mb-16"
-            style={{ color: 'var(--money-green)' }}>
+        <h1 className="cursor-blink text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider mb-12 md:mb-16"
+            style={textGlowStyle}>
           D POSITIVITY TERMINAL
         </h1>
 
         {/* Quote container */}
         <div className="min-h-[200px] md:min-h-[250px] flex flex-col items-center justify-center mb-10 md:mb-14">
           <div
-            className={`transition-all duration-300 ease-out ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-            }`}
+            className={`anim-${animStyle}-${isVisible ? 'visible' : 'hidden'}`}
           >
             {/* Quote text */}
             <blockquote className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-relaxed mb-6 md:mb-8 px-2"
@@ -128,7 +164,7 @@ function App() {
 
             {/* Artist name */}
             <p className="text-sm sm:text-base md:text-lg tracking-widest uppercase"
-               style={{ color: 'var(--money-green-dim)' }}>
+               style={{ color: currentColor.dim }}>
               — {currentQuote.artist}
             </p>
           </div>
@@ -137,31 +173,32 @@ function App() {
         {/* Run it back button */}
         <button
           onClick={handleRunItBack}
-          className="btn-glow group relative px-8 py-4 text-sm sm:text-base font-bold tracking-widest uppercase
+          className="group relative px-8 py-4 text-sm sm:text-base font-bold tracking-widest uppercase
                      border-2 transition-all duration-200 hover:scale-105 active:scale-95"
           style={{
             backgroundColor: 'transparent',
-            borderColor: 'var(--money-green)',
-            color: 'var(--money-green)'
+            borderColor: currentColor.main,
+            color: currentColor.main,
+            boxShadow: `0 0 15px ${currentColor.glow}`
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = `0 0 25px ${currentColor.glow}, 0 0 40px ${currentColor.glow}, inset 0 0 15px ${currentColor.hoverBg}`
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = `0 0 15px ${currentColor.glow}`
           }}
         >
           <span className="relative z-10">&gt; RUN_IT_BACK</span>
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-               style={{ backgroundColor: 'rgba(0, 255, 65, 0.1)' }} />
+               style={{ backgroundColor: currentColor.hoverBg }} />
         </button>
-
-        {/* Terminal decoration */}
-        <div className="mt-12 md:mt-16 text-xs tracking-wider opacity-30"
-             style={{ color: 'var(--money-green)' }}>
-          [ SYSTEM ACTIVE // STACK MODE ENABLED ]
-        </div>
       </div>
 
       {/* Mute/Unmute button with arrow hint */}
       <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
         {/* Arrow hint when muted */}
         {isMuted && (
-          <div className="arrow-bounce flex items-center gap-2" style={{ color: 'var(--money-green)' }}>
+          <div className="arrow-bounce flex items-center gap-2" style={{ color: currentColor.main }}>
             <span className="text-sm font-bold tracking-wide opacity-60">UNMUTE</span>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14" />
@@ -175,8 +212,9 @@ function App() {
           className={`p-5 border-2 transition-all duration-200 hover:scale-110 ${isMuted ? 'pulsate' : ''}`}
           style={{
             backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            borderColor: 'var(--money-green)',
-            color: 'var(--money-green)'
+            borderColor: currentColor.main,
+            color: currentColor.main,
+            '--pulse-color': currentColor.glow
           }}
           aria-label={isMuted ? 'Unmute' : 'Mute'}
         >
@@ -197,13 +235,13 @@ function App() {
       </div>
 
       {/* Corner decorations */}
-      <div className="fixed top-4 left-4 text-xs opacity-20" style={{ color: 'var(--money-green)' }}>
+      <div className="fixed top-4 left-4 text-xs opacity-20" style={{ color: currentColor.main }}>
         ┌──────────
       </div>
-      <div className="fixed top-4 right-4 text-xs opacity-20" style={{ color: 'var(--money-green)' }}>
+      <div className="fixed top-4 right-4 text-xs opacity-20" style={{ color: currentColor.main }}>
         ──────────┐
       </div>
-      <div className="fixed bottom-4 left-4 text-xs opacity-20" style={{ color: 'var(--money-green)' }}>
+      <div className="fixed bottom-4 left-4 text-xs opacity-20" style={{ color: currentColor.main }}>
         └──────────
       </div>
     </div>
